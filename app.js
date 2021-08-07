@@ -16,7 +16,7 @@ require("./mongoose/db");
 //require schemas
 require("./mongoose/schemas");
 const {
-    xyz,
+    Room,
 } = require('./mongoose/schemas');
 const {
     render
@@ -41,8 +41,13 @@ app.use(passport.session());
 const userSchema = new mongoose.Schema({
     username: String,
     password: String,
-    googleId: String
+    googleId: String,
+    rooms: Array,
+    history: Array,
+    due: Array,
 });
+
+//Adding Plugins
 userSchema.plugin(passportLocalMongoose);
 userSchema.plugin(findOrCreate);
 
@@ -63,7 +68,7 @@ passport.deserializeUser(function (id, done) {
 passport.use(new GoogleStrategy({
         clientID: process.env.CLIENT_ID,
         clientSecret: process.env.CLIENT_SECRET,
-        callbackURL: "http://localhost:3000/auth/google/secrets"
+        callbackURL: "http://localhost:3000/auth/google/dashboard"
     },
     function (accessToken, refreshToken, profile, cb) {
 
@@ -86,13 +91,13 @@ app.get('/auth/google',
         scope: ['email', 'profile']
     }));
 
-app.get('/auth/google/secrets',
+app.get('/auth/google/dashboard',
     passport.authenticate('google', {
         failureRedirect: '/login'
     }),
     function (req, res) {
         // Successful authentication, redirect home.
-        res.redirect('/secrets');
+        res.redirect('/dashboard');
     });
 
 app.get("/login", function (req, res) {
@@ -103,9 +108,10 @@ app.get("/register", function (req, res) {
     res.sendFile(__dirname + "/views/register.html");
 });
 
-app.get("/secrets", function (req, res) {
+app.get("/dashboard", function (req, res) {
+    res.set('Cache-Control', 'no-store')
     if (req.isAuthenticated()) {
-        res.sendFile(__dirname + "/views/secrets.html");
+        res.sendFile(__dirname + "/views/dashboard.html");
     } else {
         res.redirect("/login");
     }
@@ -129,7 +135,7 @@ app.post("/login", function (req, res) {
             console.log(err);
         } else {
             passport.authenticate("local")(req, res, function () {
-                res.redirect('/secrets');
+                res.redirect('/dashboard');
             })
         }
     })
@@ -144,7 +150,7 @@ app.post("/register", function (req, res) {
             res.redirect('/register');
         } else {
             passport.authenticate("local")(req, res, function () {
-                res.redirect('/secrets');
+                res.redirect('/dashboard');
             })
         }
     })

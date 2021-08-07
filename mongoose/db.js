@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 
-mongoose.connect(process.env.MONGO_URL || "mongodb+srv://test:Test123456@cluster0.wqtm7.mongodb.net/base1", {
+mongoose.connect(process.env.MONGO_URL || process.env.CONNECT , {
   useNewUrlParser: true,
   useUnifiedTopology: true
 }, (err) => {
