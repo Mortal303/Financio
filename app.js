@@ -71,7 +71,6 @@ passport.use(new GoogleStrategy({
         callbackURL: "http://localhost:3000/auth/google/dashboard"
     },
     function (accessToken, refreshToken, profile, cb) {
-
         User.findOrCreate({
             username: profile.emails[0].value,
             googleId: profile.id,
@@ -111,7 +110,7 @@ app.get("/register", function (req, res) {
 app.get("/dashboard", function (req, res) {
     res.set('Cache-Control', 'no-store')
     if (req.isAuthenticated()) {
-        res.sendFile(__dirname + "/views/dashboard.html");
+        res.render("dashboard");
     } else {
         res.redirect("/login");
     }
@@ -154,6 +153,76 @@ app.post("/register", function (req, res) {
             })
         }
     })
+});
+
+app.post("/join", function (req, res) {
+    var flag = 0;
+    var room_name = req.body.room_name_join;
+    var person = req.user.username;
+    var member = {
+        name: person,
+        spend: 0
+    };
+    Room.findOne({
+        room_name: room_name,
+    }, (err, result) => {
+        if (!err) {
+            if (result != null) {
+                for(var i =0; i < result.members.length; i++){
+                    if(person == result.members[i].name){
+                        console.log("Already in room");
+                        flag = 1;
+                        break;
+                    }
+                }
+                if (flag == 0){
+                    User.findOne({username:person}, (err , user) => {
+                        if(!err){
+                            user.rooms.push(room_name);
+                            user.save();
+                        } else console.log(err);
+                    });
+                    result.members.push(member);
+                    console.log(result);
+                    result.save();
+                }
+                res.redirect("/dashboard");
+            }
+        } else console.log(err);
+    });
+});
+
+app.post("/create", function (req, res) {
+    var room_name = req.body.room_name_create;
+    var name = req.user.username;
+    var member = [{
+        name: name,
+        spend: 0
+    }];
+    Room.find({
+        room_name: room_name
+    }, (err, result) => {
+        if (!err) {
+            if (result == '') {
+                const room = new Room({
+                    room_name: room_name,
+                    members: member,
+                    result: null
+                });
+                User.findOne({username:name}, (err , user) => {
+                    if(!err){
+                        user.rooms.push(room_name);
+                        user.save();
+                    } else console.log(err);
+                });
+                room.save();
+                res.redirect("/dashboard");
+            } else {
+                console.log("Room Exist");
+                res.redirect("/dashboard");
+            };
+        } else console.log(err);
+    });
 });
 
 //Connect To Port

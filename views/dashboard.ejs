@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+
+<body>
+    <nav>
+        <div class="app">
+            <button onclick="document.getElementById('modal-wrapper-create').style.display='block'">Create Room</button>
+            <div id="modal-wrapper-create" class="modal">
+                <form class="modal-content animate" action="/create" method="POST">
+                    <div class="imgcontainer">
+                        <span onclick="document.getElementById('modal-wrapper-create').style.display='none'" class="close"
+                            title="Close PopUp">&times;</span>
+                        <img src="images/main.png" alt="Avatar" class="avatar">
+                        <h1 style="text-align:center">Join Room</h1>
+                    </div>
+                    <div class="container">
+                        <input type="text" placeholder="Enter Room name" name="room_name_create">
+                        <button type="submit">Create</button>
+                    </div>
+                </form>
+            </div>
+            <button onclick="document.getElementById('modal-wrapper-join').style.display='block'">Join Room</button>
+            <div id="modal-wrapper-join" class="modal">
+                <form class="modal-content animate" action="/join" method="POST">
+                    <div class="imgcontainer">
+                        <span onclick="document.getElementById('modal-wrapper-join').style.display='none'" class="close"
+                            title="Close PopUp">&times;</span>
+                        <img src="images/main.png" alt="Avatar" class="avatar">
+                        <h1 style="text-align:center">Join Room</h1>
+                    </div>
+                    <div class="container">
+                        <input type="text" placeholder="Enter Room name" name="room_name_join">
+                        <button type="submit">Join</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="info">
+            <button><a href="/logout">Logout</a></button>
+        </div>
+    </nav>
+    <div class="outer">
+        <div class="sidebar">
+            <ul>
+                <li>Rooms
+                    <ul>
+                        <li>Room 1</li>
+                        <li>Room 2</li>
+                        <li>Room 3</li>
+                    </ul>
+                </li>
+                <li>Expense History</li>
+                <li>Due Payments</li>
+            </ul>
+        </div>
+        <div class="content">
+
+        </div>
+    </div>
+    <script src="js/dasboard.js"></script>
+</body>
+
+</html>
