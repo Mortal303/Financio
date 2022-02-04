@@ -108,9 +108,18 @@ app.get("/register", function (req, res) {
 });
 
 app.get("/dashboard", function (req, res) {
+    var name = req.user.username;
     res.set('Cache-Control', 'no-store')
     if (req.isAuthenticated()) {
-        res.render("dashboard");
+        User.findOne({
+            username: name
+        }, (err, user) => {
+            if (!err) {
+                res.render("dashboard", {
+                    user: user
+                });
+            } else console.log(err);
+        });
     } else {
         res.redirect("/login");
     }
@@ -157,36 +166,56 @@ app.post("/register", function (req, res) {
 
 app.post("/join", function (req, res) {
     var flag = 0;
-    var room_name = req.body.room_name_join;
+    var current_room = req.body.room_name_join;
     var person = req.user.username;
     var member = {
         name: person,
         spend: 0
     };
     Room.findOne({
-        room_name: room_name,
+        room_name: current_room,
     }, (err, result) => {
         if (!err) {
             if (result != null) {
-                for(var i =0; i < result.members.length; i++){
-                    if(person == result.members[i].name){
+                for (var i = 0; i < result.members.length; i++) {
+                    if (person == result.members[i].name) {
                         console.log("Already in room");
                         flag = 1;
                         break;
                     }
                 }
-                if (flag == 0){
-                    User.findOne({username:person}, (err , user) => {
-                        if(!err){
-                            user.rooms.push(room_name);
+                if (flag == 0) {
+                    result.members.push(member);
+                    result.save();
+                
+                    for(var i=0; i < result.members.length-1; i++){
+                        console.log(result.members[i].name);
+                        User.findOne({username: result.members[i].name} , (err , user) => {
+                            if (!err) {
+                                for(var j=0; j<user.rooms.length ; j++){
+                                    if(user.rooms[j].room_name == current_room){
+                                        user.rooms.splice(j , 1 , result);
+                                        user.save();
+                                        break;
+                                    }
+                                }
+                            } else console.log(err);
+                        });
+                    }
+
+                    User.findOne({
+                        username: person
+                    }, (err, user) => {
+                        if (!err) {
+                            user.rooms.push(result);
                             user.save();
                         } else console.log(err);
                     });
-                    result.members.push(member);
-                    console.log(result);
-                    result.save();
                 }
                 res.redirect("/dashboard");
+            } else {
+               console.log("Not a room");
+               res.redirect("/dashboard");
             }
         } else console.log(err);
     });
@@ -209,13 +238,15 @@ app.post("/create", function (req, res) {
                     members: member,
                     result: null
                 });
-                User.findOne({username:name}, (err , user) => {
-                    if(!err){
-                        user.rooms.push(room_name);
+                room.save();
+                User.findOne({
+                    username: name
+                }, (err, user) => {
+                    if (!err) {
+                        user.rooms.push(room);
                         user.save();
                     } else console.log(err);
                 });
-                room.save();
                 res.redirect("/dashboard");
             } else {
                 console.log("Room Exist");

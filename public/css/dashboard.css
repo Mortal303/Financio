@@ -19,11 +19,20 @@ nav {
 }
 
 .sidebar {
-    margin: 0 5%;
+    padding: 0 5%;
+    width: 30%;
 }
 
 .sidebar ul li ul {
     margin: 1% 10%;
+}
+
+.content{
+    height: 450px;
+    width: 70%;
+}
+.room ul{
+    display: flex;
 }
 
 /* Center the image and position the close button */
